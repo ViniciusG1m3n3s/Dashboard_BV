@@ -135,7 +135,7 @@ def dashboard():
     # else:
     #     usuario = usuario_logado
         
-    st.logo("https://finchsolucoes.com.br/img/eb28739f-bef7-4366-9a17-6d629cf5e0d9.png")
+    st.logo("/finch.png")
     
     # st.sidebar.markdown(
     # f"""
