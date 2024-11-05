@@ -471,11 +471,14 @@ def dashboard():
 
                     # Verificar a quantidade de requisições
                     filas_finalizadas_analista['Número de Requisições'] = filas_finalizadas_analista['NÚMERO REQUISIÇÃO'].notna().astype(int)
+                    
+                    filas_finalizadas_analista['ID Projuris'] = filas_finalizadas_analista['ID PROJURIS'].notna().astype(int)
 
                     # Agrupar os dados por 'NÚMERO DO PROTOCOLO' e 'FILA'
                     protocolos_analista = filas_finalizadas_analista.groupby(['NÚMERO DO PROTOCOLO', 'FILA']).agg(
                         Quantidade_de_Pastas=('Quantidade de Pastas', 'first'),
                         Número_de_Requisições=('Número de Requisições', 'first'),
+                        ID_Projuris=('ID Projuris', 'first'),
                         TMO_médio=('TEMPO MÉDIO OPERACIONAL', 'mean')
                     ).reset_index()
 
@@ -491,6 +494,7 @@ def dashboard():
                         'FILA': 'Fila',
                         'Quantidade_de_Pastas': 'Quantidade de Pastas',
                         'Número_de_Requisições': 'Número de Requisições',
+                        'ID_Projuris': 'ID Projuris',
                         'TMO_médio': 'Tempo de Análise por Protocolo'
                     })
 
