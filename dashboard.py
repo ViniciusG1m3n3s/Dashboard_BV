@@ -5,22 +5,27 @@ import os
 from streamlit_extras.customize_running import center_running 
 from datetime import datetime
 from diario import diario  # Importa o diário de bordo
-    
-# Função para carregar os dados do Excel do usuário logado
-def load_data(usuario):
-    excel_file = f'dados_acumulados_{usuario}.xlsx'  # Nome do arquivo específico do usuário
-    if os.path.exists(excel_file):
-        df_total = pd.read_excel(excel_file, engine='openpyxl')
-    else:
-        df_total = pd.DataFrame(columns=['NÚMERO DO PROTOCOLO', 'USUÁRIO QUE CONCLUIU A TAREFA', 'SITUAÇÃO DA TAREFA', 'TEMPO MÉDIO OPERACIONAL', 'DATA DE CONCLUSÃO DA TAREFA', 'FINALIZAÇÃO'])
-    return df_total
 
-# Função para salvar os dados no Excel do usuário logado
+# Função para salvar os dados no Parquet do usuário logado
 def save_data(df, usuario):
-    excel_file = f'dados_acumulados_{usuario}.xlsx'  # Nome do arquivo específico do usuário
-    df['TEMPO MÉDIO OPERACIONAL'] = df['TEMPO MÉDIO OPERACIONAL'].astype(str)
-    with pd.ExcelWriter(excel_file, engine='openpyxl', mode='w') as writer:
-        df.to_excel(writer, index=False)
+    parquet_file = f'dados_acumulados_{usuario}.parquet'  # Nome do arquivo Parquet específico do usuário
+    # Garantir que todas as colunas relevantes estejam no formato apropriado
+    df['NÚMERO DO PROTOCOLO'] = df['NÚMERO DO PROTOCOLO'].astype(str)  # Converte NÚMERO DO PROTOCOLO para string
+    df['TEMPO MÉDIO OPERACIONAL'] = df['TEMPO MÉDIO OPERACIONAL'].astype(str)  # Converte TEMPO MÉDIO OPERACIONAL para string, se necessário
+    df.to_parquet(parquet_file, index=False)  # Salva os dados em Parquet
+
+# Função para carregar os dados do Parquet do usuário logado
+def load_data(usuario):
+    parquet_file = f'dados_acumulados_{usuario}.parquet'  # Nome do arquivo Parquet específico do usuário
+    if os.path.exists(parquet_file):
+        df_total = pd.read_parquet(parquet_file)  # Carrega dados do Parquet
+        # Garantir que a coluna NÚMERO DO PROTOCOLO esteja em string após carregar
+        df_total['NÚMERO DO PROTOCOLO'] = df_total['NÚMERO DO PROTOCOLO'].astype(str)
+    else:
+        df_total = pd.DataFrame(columns=['NÚMERO DO PROTOCOLO', 'USUÁRIO QUE CONCLUIU A TAREFA', 
+                                        'SITUAÇÃO DA TAREFA', 'TEMPO MÉDIO OPERACIONAL', 
+                                        'DATA DE CONCLUSÃO DA TAREFA', 'FINALIZAÇÃO'])
+    return df_total
 
 # Função para garantir que a coluna 'TEMPO MÉDIO OPERACIONAL' esteja no formato timedelta para cálculos
 def convert_to_timedelta_for_calculations(df):
